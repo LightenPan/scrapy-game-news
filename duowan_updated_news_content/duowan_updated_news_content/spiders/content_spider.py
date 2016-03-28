@@ -50,7 +50,7 @@ class NewsContentSpider(scrapy.Spider):
 		#日期
 		publicTime = response.xpath('//address/span[1]/text()').extract()
 		publicTime = ''.join(publicTime).strip()
-		publicTime = publicTime[len(publicTime)-19::]
+		publicTime = publicTime[-18:]
 		#转化为时间戳
 		import time
 		item['date'] = time.mktime(time.strptime(publicTime,"%Y-%m-%d %H:%M:%S"))
