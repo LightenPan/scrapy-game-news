@@ -34,7 +34,7 @@ class ContentSpider(scrapy.Spider):
 		linklist = []
 		for sel in alist:
 			link = ''.join(sel.xpath('@href').extract())
-			if not re.match('.*Index.shtml.*', link):
+			if not re.match('.*Index.shtml.*', link) and not re.match('bbs', link):
 				linklist.append(link)
 
 		#获取内容
