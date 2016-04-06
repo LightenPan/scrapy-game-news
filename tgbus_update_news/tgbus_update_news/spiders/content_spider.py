@@ -2,16 +2,23 @@
 # encoding: utf-8
 
 import scrapy
+from scrapy.exceptions import DropItem
 from tgbus_update_news.items import NewsContentItem
 from hashlib import md5
-import MySQLdb
-import MySQLdb.cursors
 
 import re
 
 import logging
 logger = logging.getLogger('tgbus_update_news')
 
+def extract_date(date):
+	#一次处理找出日期、时间、事情三样信息
+	pattern = re.compile("(?P<date>\d{4}/\d{1,2}/\d{1,2})\s+(?P<time>\d{1,2}:\d{1,2}:\d{1,2})")
+	m = pattern.search(date)
+	if m:
+		return m.group('date') + " " + m.group('time')
+	else:
+		return ''
 
 class ContentSpider(scrapy.Spider):
 	name = "tgbus_update_news"
@@ -39,7 +46,6 @@ class ContentSpider(scrapy.Spider):
 
 		#获取内容
 		for link in linklist:
-			logger.info('get content from link: ' + link)
 			yield scrapy.Request(link, callback=self.ContentParse, errback=self.errHandler)
 
 	def ContentParse(self, response):
@@ -53,10 +59,10 @@ class ContentSpider(scrapy.Spider):
 		#提取时间
 		date = response.xpath('//li[contains(@class, "d")]/text()').extract()
 		date = ''.join(date).strip()
-		#去掉时间前面的汉字
-		date = date.split('：')
-		date = date[-1:]
-		date = ''.join(date)
+		date = extract_date(date)
+		if not date:
+			return
+
 		#转化为时间戳
 		import time
 		item['date'] = time.mktime(time.strptime(date,"%Y/%m/%d %H:%M:%S"))
@@ -69,7 +75,7 @@ class ContentSpider(scrapy.Spider):
 		#timestamp是输入变量
 		timestamp = item['date']
 		show_datetime = time.strftime("%Y/%m/%d %H:%M:%S", time.localtime(timestamp))
-		logger.info('finish get next content. link: %s, title: %s, date: %s, content_length: %u' % (item['link'], item['title'], show_datetime, len(item['content'])))
+		logger.info('finish get content. link: %s, title: %s, date: %s, content_length: %u' % (item['link'], item['title'], show_datetime, len(item['content'])))
 		return item
 
 	def errHandler(self, failure):

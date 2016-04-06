@@ -1,0 +1,12 @@
+setup.py
+project.egg-info/PKG-INFO
+project.egg-info/SOURCES.txt
+project.egg-info/dependency_links.txt
+project.egg-info/entry_points.txt
+project.egg-info/top_level.txt
+tgbus_update_news/__init__.py
+tgbus_update_news/items.py
+tgbus_update_news/pipelines.py
+tgbus_update_news/settings.py
+tgbus_update_news/spiders/__init__.py
+tgbus_update_news/spiders/content_spider.py
